@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" charset="utf-8"></script>
+  </head>
+  <body>
+    <div class="container">
+      <div class="errors">
+        {% if messages %}
+          {% for msg in messages %}
+            <p>{{msg}}</p>
+          {% endfor %}
+        {% endif %}
+      </div>
+      <div class="row">
+        <div class="col-xs-10">
+          <h3>Welcome, {{data.current_user.first_name}}</h3>
+        </div>
+        <div class="col-xs-2">
+          <form class="" action="{% url 'login_ns:logout' %}" method="post">
+            {% csrf_token %}
+            <input type="submit" name="" value="Log Out" class='btn btn-danger'>
+          </form>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-xs-12">
+          <h2>Your Favorites</h2>
+          <table class="table">
+            <tr>
+              <th>Item</th>
+              <th>Added By</th>
+              <th>Date Added</th>
+              <th>Action</th>
+            </tr>
+            {% for item in data.favorites %}
+              <tr>
+                <td><a href="{% url 'items_ns:view_item' item.id %}">{{item.name}}</a></td>
+                <td>{{item.user.first_name}}</td>
+                <td>{{item.created_at|date:"M d, Y"}}</td>
+                <td>{% if not item.added_by.id == request.session.id %}
+                  <form class="" action="{% url 'items_ns:delete_item' item.id %}" method="post">
+                    {% csrf_token %}
+                    <input type="submit" name="" value="Delete Item" class="btn btn-danger">
+                  </form>
+                  {% else %}
+                  <form class="" action="{% url 'items_ns:remove_item' %}" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="item_id" value="{{item.id}}">
+                    <input type="hidden" name="user_id" value="{{request.session.user_id}}">
+                    <input type="submit" name="" value="Remove Item From Favorites" class="btn btn-warning">
+                  </form>
+                  {% endif %}
+                </td>
+              </tr>
+            {% endfor %}
+          </table>
+
+          <table class="table">
+            <tr>
+              <th>Item</th>
+              <th>Added By</th>
+              <th>Date Added</th>
+              <th>Action</th>
+            </tr>
+            {% for item in data.other_items %}
+              <tr>
+                <td><a href="{% url 'items_ns:view_item' item.id %}">{{item.name}}</a></td>
+                <td>{{item.added_by.first_name}}</td>
+                <td>{{item.created_at|date:"M d, Y"}}</td>
+                <td>
+                  <form class="" action="{% url 'items_ns:add_item_to_fav' %}" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="item_id" value="{{item.id}}">
+                    <input type="hidden" name="user_id" value="{{request.session.user_id}}">
+                    <input type="submit" name="" value="Add Item To Favorites" class="btn btn-primary">
+                  </form>
+
+                </td>
+              </tr>
+            {% endfor %}
+          </table>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-xs-3-offset-9">
+          <form class="" action="{% url 'items_ns:display_add_item' %}" method="post">
+            {% csrf_token %}
+            <input type="submit" name="" value="Add Item" class="btn btn-primary">
+          </form
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
